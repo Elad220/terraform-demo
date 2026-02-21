@@ -1,17 +1,40 @@
 variable "region" {
-  description = "AWS Region"
-  type        = string
-  default     = "us-east-1"
+  default = "us-east-1"
 }
 
 variable "instance_type" {
-  description = "EC2 Instance Type"
-  type        = string
-  default     = "t3.micro"
+  default = "t3.micro"
 }
 
 variable "project_name" {
-  description = "Project Name"
+  default = "terraform-experiments"
+}
+
+variable "environment" {
+  description = "Deployment environment (dev, staging, prod)"
   type        = string
-  default     = "terraform-experiments"
+}
+
+variable "enable_vpc" {
+  default = false
+}
+
+variable "vpc_cidr" {
+  default = "10.0.0.0/16"
+}
+
+variable "private_subnets" {
+  default = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+}
+
+variable "public_subnets" {
+  default = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+}
+
+variable "enable_eks" {
+  default = false
+}
+
+variable "eks_instance_types" {
+  default = ["t3.small"]
 }

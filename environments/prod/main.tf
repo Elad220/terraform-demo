@@ -3,43 +3,37 @@ provider "aws" {
 }
 
 module "compute" {
-  source = "../../modules/compute"
-
+  source        = "../../modules/compute"
   region        = var.region
   instance_type = var.instance_type
   project_name  = var.project_name
-  environment   = "prod"
+  environment   = var.environment
 }
 
 module "vpc" {
-  source = "../../modules/vpc"
-
-  name = "${var.project_name}-vpc-prod"
-  cidr = "10.1.0.0/16"
-
+  source          = "../../modules/vpc"
+  count           = var.enable_vpc ? 1 : 0
+  name            = "${var.project_name}-vpc-${var.environment}"
+  cidr            = var.vpc_cidr
   azs             = ["${var.region}a", "${var.region}b", "${var.region}c"]
-  private_subnets = ["10.1.1.0/24", "10.1.2.0/24", "10.1.3.0/24"]
-  public_subnets  = ["10.1.101.0/24", "10.1.102.0/24", "10.1.103.0/24"]
-
+  private_subnets = var.private_subnets
+  public_subnets  = var.public_subnets
   tags = {
-    Environment = "prod"
+    Environment = var.environment
     Project     = var.project_name
   }
 }
 
 module "eks" {
-  source = "../../modules/eks"
-
-  cluster_name    = "prod-eks"
+  source          = "../../modules/eks"
+  count           = var.enable_eks ? 1 : 0
+  cluster_name    = "${var.project_name}-eks-${var.environment}"
   cluster_version = "1.29"
-
-  vpc_id     = module.vpc.vpc_id
-  subnet_ids = module.vpc.private_subnets
-
-  instance_types = ["t3.medium"]
-
+  vpc_id          = module.vpc[0].vpc_id
+  subnet_ids      = module.vpc[0].private_subnets
+  instance_types  = var.eks_instance_types
   tags = {
-    Environment = "prod"
+    Environment = var.environment
     Project     = var.project_name
   }
 }
